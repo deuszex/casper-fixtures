@@ -10,12 +10,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tempfile::TempDir;
 
-use casper_engine_test_support::LmdbWasmTestBuilder;
-use casper_execution_engine::core::engine_state::{
-    run_genesis_request::RunGenesisRequest, EngineConfig,
-};
-use casper_hashing::Digest;
-use casper_types::ProtocolVersion;
+use casper_engine_test_support::{ChainspecConfig, LmdbWasmTestBuilder};
+use casper_storage::data_access_layer::GenesisRequest;
+use casper_types::{Digest, ProtocolVersion};
 
 const STATE_JSON_FILE: &str = "state.json";
 const GENESIS_PROTOCOL_VERSION_FIELD: &str = "protocol_version";
@@ -27,7 +24,7 @@ fn path_to_lmdb_fixtures() -> PathBuf {
 /// Contains serialized genesis config.
 #[derive(Serialize, Deserialize)]
 pub struct LmdbFixtureState {
-    /// Serializes as unstructured JSON value because [`RunGenesisRequest`] might change over time
+    /// Serializes as unstructured JSON value because [`GenesisRequest`] might change over time
     /// and likely old fixture might not deserialize cleanly in the future.
     pub genesis_request: serde_json::Value,
     pub post_state_hash: Digest,
@@ -68,7 +65,8 @@ pub fn builder_from_global_state_fixture(
     (
         LmdbWasmTestBuilder::open(
             &path_to_gs,
-            EngineConfig::default(),
+            ChainspecConfig::default(),
+            lmdb_fixture_state.genesis_protocol_version(),
             lmdb_fixture_state.post_state_hash,
         ),
         lmdb_fixture_state,
@@ -83,7 +81,7 @@ pub fn builder_from_global_state_fixture(
 /// control.
 pub fn generate_fixture(
     name: &str,
-    genesis_request: RunGenesisRequest,
+    genesis_request: GenesisRequest,
     post_genesis_setup: impl FnOnce(&mut LmdbWasmTestBuilder),
 ) -> Result<(), Box<dyn std::error::Error>> {
     let lmdb_fixtures_root = path_to_lmdb_fixtures();
@@ -100,10 +98,10 @@ pub fn generate_fixture(
         return Ok(());
     }
 
-    let engine_config = EngineConfig::default();
-    let mut builder = LmdbWasmTestBuilder::new_with_config(&fixture_root, engine_config);
+    let chainspec = ChainspecConfig::default();
+    let mut builder = LmdbWasmTestBuilder::new_with_config(&fixture_root, chainspec);
 
-    builder.run_genesis(&genesis_request);
+    builder.run_genesis(genesis_request.clone());
 
     // You can customize the fixture post genesis with a callable.
     post_genesis_setup(&mut builder);
@@ -121,11 +119,9 @@ pub fn generate_fixture(
     let serialized_state = serde_json::to_string_pretty(&state)?;
 
     let path_to_state_file = fixture_root.join(STATE_JSON_FILE);
-    {
-        let mut f = File::create(path_to_state_file)?;
-        f.write_all(serialized_state.as_bytes())?;
-        f.sync_all()?;
-    }
+
+    let mut f = File::create(path_to_state_file)?;
+    f.write_all(serialized_state.as_bytes())?;
     shrink_db(path_to_data_lmdb);
     Ok(())
 }

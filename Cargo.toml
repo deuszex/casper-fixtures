@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-casper-engine-test-support = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc2" }
-casper-execution-engine = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc2" , features = ["test-support"] }
-casper-types = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc2" , default_features = false, features = ["datasize", "json-schema"] }
-casper-storage = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc2" }
+casper-engine-test-support = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc3" }
+casper-execution-engine = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc3" , features = ["test-support"] }
+casper-types = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc3" , default_features = false, features = ["datasize", "json-schema"] }
+casper-storage = { git = "https://github.com/casper-network/casper-node.git", branch = "release-2.0.0-rc3" }
 lmdb = "0.8.0"
 
 fs_extra = "1.2.0"

@@ -4,11 +4,11 @@ version = "1.0.0"
 edition = "2018"
 
 [dependencies]
-casper-types = "4.0.1"
-casper-engine-test-support = "7.0.1"
-casper-execution-engine = "7.0.1"
+casper-types = "5.0.1"
+casper-engine-test-support = "8.0.0"
+casper-execution-engine = "8.0.0"
 once_cell = "1.16.0"
-casper-fixtures = { git = "https://github.com/deuszex/casper-fixtures" }
+casper-fixtures = { path = "../../../" }
 
 [lib]
 name = "tests"
